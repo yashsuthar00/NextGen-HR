@@ -1,8 +1,9 @@
 FROM node:23.7-slim
 
-WORKDIR /app
-
+COPY package.json package-lock.json /app/
 COPY . /app/
+
+WORKDIR /app
 
 RUN npm install
 

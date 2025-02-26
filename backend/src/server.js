@@ -4,7 +4,6 @@ import connectDB from './config/connectDB.js';
 import validateEnv from './utils/validateEnv.js';
 
 dotenv.config();
-connectDB();
 
 const { port, mongoUri } = validateEnv();
 connectDB(mongoUri);
@@ -12,7 +11,7 @@ connectDB(mongoUri);
 const app = express();
 
 app.get('/', (req, res) => {
-  res.send('Hello World');
+  res.send('Hello from docker via docker-compose!');
 });
 
 app.listen(port, () => {

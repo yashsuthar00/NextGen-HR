@@ -5,7 +5,9 @@ services:
       - "5000:5000"
     depends_on:
       - mongodb
-  
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/NEXTGEN-HR
 
   mongodb:
     image: mongo
