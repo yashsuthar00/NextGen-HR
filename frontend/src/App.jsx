@@ -4,7 +4,7 @@ function App() {
   return (
     <>
       <form
-        action="http://localhost:5000/upload"
+        action="http://localhost:5000/api/files/upload"
         method="POST"
         encType="multipart/form-data"
       >
