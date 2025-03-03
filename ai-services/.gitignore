@@ -1,0 +1,60 @@
+*.pyc
+__pycache__/
+instance/
+.env
+.venv/
+.venv.bak/
+# Flask specific files
+*.log
+*.pot
+*.py[cod]
+*.sqlite3
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+
+# Virtual environments
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Test results
+*.pytest_cache/
+junitxml.xml
+
+# Build directories
+build/
+dist/
+*.egg-info/
+.eggs/
