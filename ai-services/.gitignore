@@ -14,7 +14,7 @@ instance/
 
 # Environment variables
 .env
-
+/temp
 # Virtual environments
 venv/
 ENV/

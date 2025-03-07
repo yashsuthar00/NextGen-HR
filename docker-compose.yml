@@ -1,13 +1,51 @@
 services:
+  # Zookeeper service for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - NextGen-HR
+
+  # Kafka service
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9094:9094"  # External listener port
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - NextGen-HR
+
   backend:
     build: ./backend
     ports:
       - "8000:8000"
     depends_on:
       - mongodb
+      - kafka
     environment:
       - PORT=8000
       - MONGO_URI=mongodb://mongodb:27017/NEXTGEN-HR
+      - KAFKA_BROKER=kafka:9092
+    volumes:
+      - ./backend:/app
+    networks:
+      - NextGen-HR
+
   ai-services:
     build: ./ai-services
     ports:
@@ -16,6 +54,10 @@ services:
       - mongodb
     environment:
       - MONGO_URI=mongodb://mongodb:27017/NEXTGEN-HR
+    volumes:
+      - ./ai-services:/app
+    networks:
+      - NextGen-HR
 
   frontend:
     build: ./frontend
@@ -24,13 +66,19 @@ services:
     depends_on:
       - backend
       - ai-services
+    volumes:
+      - ./frontend:/usr/src/app
+    networks:
+      - NextGen-HR
 
   mongodb:
     image: mongo
+    container_name: mongodb
     ports:
       - "27017:27017"
+    networks:
+      - NextGen-HR
 
 networks:
-  default:
-    name: NextGen-HR
+  NextGen-HR:
     driver: bridge

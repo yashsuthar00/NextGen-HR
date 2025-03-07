@@ -37,6 +37,7 @@ RUN adduser \
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
+RUN pip install watchdog
 
 # Switch to the non-privileged user to run the application.
 USER appuser
@@ -45,7 +46,7 @@ USER appuser
 COPY . .
 
 # Expose the port that the application listens on.
-EXPOSE 000
+EXPOSE 5000
 
 # Run the application.
-CMD ["python", "run.py"]
+CMD ["watchmedo", "auto-restart", "--patterns=*.py", "--recursive", "--", "python", "run.py"]
