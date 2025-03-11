@@ -209,7 +209,9 @@ export const deleteInterview = async (req, res) => {
     await InterviewQuestion.deleteMany({ interview: interview._id });
     
     // Delete the interview
-    await interview.remove();
+    await Interview.deleteOne({ _id: interview._id });
+
+    await InterviewResponse.deleteMany({ interview: interview._id });
 
     res.status(200).json({
       success: true,

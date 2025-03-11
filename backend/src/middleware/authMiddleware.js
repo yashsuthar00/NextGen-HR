@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { PERMISSIONS, hasPermission } from '../config/roles.js';
+import config from '../config/config.js';
 
 /**
  * Middleware to protect routes that require authentication
@@ -14,7 +15,7 @@ export const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
 
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, config.JWT_SECRET);
 
       // Add user info to request object
       req.user = {

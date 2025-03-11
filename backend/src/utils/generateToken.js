@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import config from '../config/config.js';
 
 /**
  * Generate a JWT token
@@ -9,7 +10,7 @@ import jwt from 'jsonwebtoken';
 export const generateToken = (id, role) => {
   return jwt.sign(
     { id, role },
-    process.env.JWT_SECRET,
-    { expiresIn: '30d' }
+    config.JWT_SECRET,
+    { expiresIn: config.JWT_EXPIRE }
   );
 };
