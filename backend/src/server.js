@@ -5,6 +5,7 @@ import validateEnv from './utils/validateEnv.js';
 import cors from 'cors';
 import interviewRoutes from './routes/interviewRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
+import authRoutes from './routes/authRoutes.js'
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ if (process.env.NODE_ENV === 'development') {
 // API Routes
 app.use('/api/interviews', interviewRoutes);
 app.use('/api/videos', videoRoutes);
+app.use('/', authRoutes)
 
 // Health check route
 app.get('/api/health', (req, res) => {

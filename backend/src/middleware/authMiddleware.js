@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken';
+import { PERMISSIONS, hasPermission } from '../config/roles.js';
 
 /**
  * Middleware to protect routes that require authentication
  */
-const protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
   let token;
 
   // Check if authorization header exists and starts with Bearer
@@ -42,7 +43,7 @@ const protect = async (req, res, next) => {
 /**
  * Middleware to restrict access based on user role
  */
-const authorize = (...roles) => {
+export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({
@@ -54,4 +55,22 @@ const authorize = (...roles) => {
   };
 };
 
-export { protect, authorize };
+/**
+ * Middleware to check permission for a specific action
+ */
+export const requirePermission = (permission) => {
+  return (req, res, next) => {
+    if (!req.user || !hasPermission(req.user.role, permission)) {
+      return res.status(403).json({
+        success: false,
+        message: `You don't have permission to perform this action`,
+      });
+    }
+    next();
+  };
+};
+
+/**
+ * Export permissions for route configuration
+ */
+export { PERMISSIONS };
