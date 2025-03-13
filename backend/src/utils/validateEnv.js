@@ -12,8 +12,8 @@ const validateEnv = () => {
   }
 
   return {
-    port: process.env.PORT,
-    mongoUri: process.env.MONGO_URI,
+    PORT: process.env.PORT,
+    MONGO_URI: process.env.MONGO_URI,
   };
 };
 
