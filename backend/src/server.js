@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import { initializeRoles } from './utils/initRoles.js';
 import { initializeAdmin } from './utils/initAdmin.js';
+import cors from 'cors';
 
 
 dotenv.config();
@@ -15,6 +16,7 @@ const { PORT, MONGO_URI } = validateEnv();
 
 // Middleware to parse JSON requests
 app.use(express.json());
+app.use(cors());
 
 // Define API routes
 app.use('/api/auth', authRoutes);

@@ -21,7 +21,7 @@ const login = async (req, res) => {
     // Generate JWT Token with user id and role information
     const token = jwt.sign(
       { id: user._id, role: user.role.name },
-      process.env.JWT_SECRET || 'your_jwt_secret',
+      process.env.JWT_SECRET || 'NextGenHR',
       { expiresIn: '1h' }
     );
     
