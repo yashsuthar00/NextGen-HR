@@ -1,13 +1,12 @@
-// backend/controllers/userController.js
 import User from '../models/userModel.js';
 import Role from '../models/roleModels.js';
 
 const createUser = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, fullname, department } = req.body;
     
     // Validate required fields
-    if (!username || !email || !password || !role) {
+    if (!username || !email || !password || !role || !fullname || !department) {
       return res.status(400).json({ message: 'All fields are required' });
     }
     
@@ -20,7 +19,7 @@ const createUser = async (req, res) => {
     // Check for duplicate email
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User with this email already exists' });
+      return res.status(409).json({ message: 'User with this email already exists' });
     }
     
     // Create a new user linked to the appropriate role
@@ -28,7 +27,9 @@ const createUser = async (req, res) => {
       username,
       email,
       password,
-      role: roleDoc._id
+      role: roleDoc._id,
+      fullname,
+      department
     });
     
     await newUser.save();
@@ -53,5 +54,18 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
+const getUsers = async (req, res) => {
+  try {
+    // Fetch roles 'employee' and 'hr'
+    const roles = await Role.find({ name: { $in: ['employee', 'hr'] } });
+    const roleIds = roles.map(role => role._id);
 
-export { createUser, deleteUser };
+    // Fetch users with the specified roles
+    const users = await User.find({ role: { $in: roleIds } }).populate('role', 'name');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+export { createUser, deleteUser, getUsers };

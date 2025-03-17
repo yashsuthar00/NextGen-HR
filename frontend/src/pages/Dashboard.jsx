@@ -8,7 +8,8 @@ import CandidateDashboard from '../components/CandidateDashboard.jsx';
 import Navbar from '../components/Navbar.jsx';
 
 function Dashboard() {
-  const role = localStorage.getItem('role');
+  const user = localStorage.getItem('user');
+  const role = user ? JSON.parse(user).role : null;
 
   if (!role) {
     return <Navigate to="/login" />;

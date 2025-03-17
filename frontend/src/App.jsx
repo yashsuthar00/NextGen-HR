@@ -1,19 +1,35 @@
 // frontend/src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import AdminDashboard from './components/AdminDashboard.jsx';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Dashboard from './pages/Dashboard.jsx';
 import AuthPage from './pages/AuthPage.jsx';
+import UserManagementSystem from './components/UserManagementSystem.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import NotFoundPage from './pages/NotFoundPage.jsx';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<AuthPage />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        {/* Add more routes as needed */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/login" element={<AuthPage />} />
+      <Route
+        path="/dashboard/*"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route 
+        path="/admin/users" 
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <UserManagementSystem />
+          </ProtectedRoute>
+        } 
+      />
+      <Route path="/not-found" element={<NotFoundPage />} />
+      <Route path="*" element={<Navigate to="/not-found" replace />} />
+    </Routes>
   );
 }
 

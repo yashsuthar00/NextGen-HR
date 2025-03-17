@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-
-// Create axios instance with base configuration
-const api = axios.create({
-  baseURL: 'http://localhost:8000/api', // Replace with your actual API URL
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+import api from '../utils/api';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login } from '../store/slices/authSlice';
 
 const AuthPage = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -96,12 +93,11 @@ const AuthPage = () => {
         // Store user info (optionally)
         localStorage.setItem('user', JSON.stringify(user));
         
-        // Redirect user or update app state
-        console.log('Authentication successful:', response.data);
-        alert(`${isLogin ? 'Login' : 'Registration'} successful!`);
-        
-        // Optional: Redirect to dashboard or home page
-        // window.location.href = '/dashboard';
+        // Dispatch login action
+        console.log(user);
+        dispatch(login({ user, token }));
+
+        navigate('/dashboard'); 
         
         // Reset form after submission
         setFormData({

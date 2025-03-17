@@ -4,6 +4,10 @@ import bcrypt from 'bcryptjs';
 
 const UserSchema = new mongoose.Schema(
   {
+    fullname: {
+      type: String,
+      required: [true, "Full name must be required"],
+    },
     username: { 
         type: String, 
         required: [true, "username must be required"] 
@@ -16,6 +20,10 @@ const UserSchema = new mongoose.Schema(
     password: { 
         type: String, 
         required: [true, "password must be required"]
+     },
+     department: {
+        type: String,
+        required: [true, "department must be required"]
      },
     role: { 
         type: mongoose.Schema.Types.ObjectId, 

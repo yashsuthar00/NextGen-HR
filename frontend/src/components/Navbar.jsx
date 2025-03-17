@@ -1,14 +1,18 @@
 // src/components/Navbar.jsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logout } from '../store/slices/authSlice';
 
 function Navbar() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
     // Clear stored authentication data and navigate to login page
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    dispatch(logout());
     navigate('/login');
   };
 
