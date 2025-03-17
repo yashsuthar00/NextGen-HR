@@ -14,6 +14,7 @@ export const initializeAdmin = async () => {
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@nexgenhr.com';
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
     const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const adminFullname = process.env.ADMIN_FULLNAME || 'Admin User';
     
     // Check if the admin account already exists
     const existingAdmin = await User.findOne({ email: adminEmail });
@@ -27,7 +28,9 @@ export const initializeAdmin = async () => {
       username: adminUsername,
       email: adminEmail,
       password: adminPassword,
-      role: adminRole._id
+      role: adminRole._id,
+      fullname: adminFullname,
+      department: 'Admin Department',
     });
     
     await adminUser.save();

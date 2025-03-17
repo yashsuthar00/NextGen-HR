@@ -54,6 +54,7 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
+
 const getUsers = async (req, res) => {
   try {
     // Fetch roles 'employee' and 'hr'
@@ -68,4 +69,44 @@ const getUsers = async (req, res) => {
   }
 };
 
-export { createUser, deleteUser, getUsers };
+const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, email, password, role, fullname, department } = req.body;
+
+    // Validate required fields
+    if (!username || !email || !role || !fullname || !department) {
+      return res.status(400).json({ message: 'All fields except password are required' });
+    }
+
+    // Ensure the role exists in the Role collection
+    const roleDoc = await Role.findOne({ name: role });
+    if (!roleDoc) {
+      return res.status(400).json({ message: 'Invalid role provided' });
+    }
+
+    // Find the user by ID and update the details
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        username,
+        email,
+        password,
+        role: roleDoc._id,
+        fullname,
+        department
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'User updated successfully', user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+export { createUser, deleteUser, getUsers, updateUser };

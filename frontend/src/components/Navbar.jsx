@@ -21,6 +21,12 @@ function Navbar() {
       <div>
         <Link to="/">Home</Link>
         <Link to="/dashboard" style={{ marginLeft: '1rem' }}>Dashboard</Link>
+        {
+          // Conditionally render the "Admin" link based on user role
+          JSON.parse(localStorage.getItem('user'))?.role === 'admin' && (
+            <Link to="/admin/users" style={{ marginLeft: '1rem' }}>User</Link>
+          )
+        }
       </div>
       <button onClick={handleLogout}>Logout</button>
     </nav>
