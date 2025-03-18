@@ -30,7 +30,6 @@ export const initializeAdmin = async () => {
       password: adminPassword,
       role: adminRole._id,
       fullname: adminFullname,
-      department: 'Admin Department',
     });
     
     await adminUser.save();

@@ -10,7 +10,9 @@ const UserSchema = new mongoose.Schema(
     },
     username: { 
         type: String, 
-        required: [true, "username must be required"] 
+        required: function () {
+          return this.provider === 'local';
+        } 
     },
     email: { 
         type: String, 
@@ -19,7 +21,20 @@ const UserSchema = new mongoose.Schema(
     },
     password: { 
         type: String, 
-        required: [true, "password must be required"]
+        required: function () {
+          return this.provider === 'local';
+        }
+     },
+     googleId: { 
+       type: String 
+     },
+     githubId: { 
+      type: String 
+    },
+     provider: { 
+       type: String, 
+       enum: ['local', 'google', 'github'], 
+       default: 'local' 
      },
      department: {
         type: String,

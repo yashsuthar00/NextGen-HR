@@ -7,16 +7,87 @@ import userRoutes from './routes/userRoutes.js';
 import { initializeRoles } from './utils/initRoles.js';
 import { initializeAdmin } from './utils/initAdmin.js';
 import cors from 'cors';
+import passport from './config/passport-config.js';
+import session from 'express-session';
 
 
 dotenv.config();
 const app = express();
 
-const { PORT, MONGO_URI } = validateEnv();
+const { PORT, MONGO_URI, SESSION_SECRET, CLIENT_URL } = validateEnv();
 
 // Middleware to parse JSON requests
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: CLIENT_URL,
+  credentials: true
+}));
+
+// Session middleware setup
+app.use(session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Initialize Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Google OAuth
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to profile or dashboard.
+    res.redirect('/profile');
+  }
+);
+
+// GitHub OAuth
+app.get('/auth/github',
+  passport.authenticate('github', { scope: ['user:email'] })
+);
+
+app.get('/auth/github/callback',
+  passport.authenticate('github', { failureRedirect: '/' }),
+  (req, res) => {
+    res.redirect('/profile');
+  }
+);
+
+// ----------------------
+// Protected Routes Example
+// ----------------------
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "Unauthorized" });
+}
+
+app.get('/profile', ensureAuthenticated, (req, res) => {
+  res.json({
+    id: req.user._id,
+    username: req.user.username,
+    email: req.user.email,
+    provider: req.user.provider,
+    // Include other fields (like picture) as needed
+  });
+});
+
+// Logout route
+app.get('/logout', (req, res) => {
+  req.logout(err => {
+    if (err) {
+      return res.status(500).json({ message: "Logout error" });
+    }
+    res.redirect('/');
+  });
+});
 
 // Define API routes
 app.use('/api/auth', authRoutes);
