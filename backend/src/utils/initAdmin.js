@@ -1,6 +1,6 @@
 // backend/utils/initAdmin.js
 import User from '../models/userModel.js';
-import Role from '../models/roleModels.js';
+import Role from '../models/roleModel.js';
 
 export const initializeAdmin = async () => {
   try {

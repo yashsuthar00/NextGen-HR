@@ -1,5 +1,5 @@
 import User from '../models/userModel.js';
-import Role from '../models/roleModels.js';
+import Role from '../models/roleModel.js';
 
 const createUser = async (req, res) => {
   try {

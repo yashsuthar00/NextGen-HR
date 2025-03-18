@@ -1,5 +1,5 @@
 // backend/utils/initRoles.js
-import Role from '../models/roleModels.js';
+import Role from '../models/roleModel.js';
 
 export const initializeRoles = async () => {
   try {

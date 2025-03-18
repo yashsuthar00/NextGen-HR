@@ -11,12 +11,15 @@ const AuthPage = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
-    name: ''
+    confirmPassword: '', // Ensure this is always a string
+    name: '',
+    username: '',
+    role: 'candidate', // Default value for role
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
+  const [successMessage, setSuccessMessage] = useState(''); // Add state for success message
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,6 +56,9 @@ const AuthPage = () => {
       
       if (!formData.confirmPassword) tempErrors.confirmPassword = 'Please confirm your password';
       else if (formData.confirmPassword !== formData.password) tempErrors.confirmPassword = 'Passwords do not match';
+      
+      if (!formData.username) tempErrors.username = 'Username is required';
+      else if (formData.username.length < 3) tempErrors.username = 'Username must be at least 3 characters';
     }
     
     setErrors(tempErrors);
@@ -65,7 +71,8 @@ const AuthPage = () => {
     if (validate()) {
       setLoading(true);
       setApiError('');
-      
+      setSuccessMessage(''); // Clear any previous success message
+
       try {
         let response;
         
@@ -75,50 +82,60 @@ const AuthPage = () => {
             email: formData.email,
             password: formData.password
           });
+
+          // Handle successful login
+          const { token, user } = response.data;
+
+          // Store token and user info in localStorage
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('user', JSON.stringify(user));
+
+          // Dispatch login action
+          dispatch(login({ user, token }));
+
+          navigate('/dashboard');
         } else {
           // Register API call
           response = await api.post('/auth/register', {
-            name: formData.name,
+            fullname: formData.name,
+            username: formData.username,
             email: formData.email,
-            password: formData.password
+            password: formData.password,
+            role: formData.role,
           });
-        }
-        
-        // Handle successful response
-        const { token, user } = response.data;
-        
-        // Store token in localStorage
-        localStorage.setItem('authToken', token);
-        
-        // Store user info (optionally)
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        // Dispatch login action
-        console.log(user);
-        dispatch(login({ user, token }));
 
-        navigate('/dashboard'); 
-        
-        // Reset form after submission
-        setFormData({
-          email: '',
-          password: '',
-          confirmPassword: '',
-          name: ''
-        });
+          // Show success message and redirect to login page
+          setSuccessMessage(
+            'Registration successful! Please log in with the same credentials.'
+          );
+
+          // Reset form after successful registration
+          setFormData({
+            email: '',
+            password: '',
+            confirmPassword: '',
+            name: '',
+            username: '',
+            role: 'candidate',
+          });
+
+          // Redirect to login page after a short delay
+          setTimeout(() => {
+            setIsLogin(true);
+            setSuccessMessage('');
+          }, 10000);
+        }
       } catch (error) {
         // Handle error response
         console.error('Authentication error:', error);
-        
+
         if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          setApiError(error.response.data.message || 'Authentication failed. Please try again.');
+          setApiError(
+            error.response.data.message || 'Authentication failed. Please try again.'
+          );
         } else if (error.request) {
-          // The request was made but no response was received
           setApiError('No response from server. Please check your internet connection.');
         } else {
-          // Something happened in setting up the request that triggered an Error
           setApiError('An unexpected error occurred. Please try again later.');
         }
       } finally {
@@ -151,6 +168,29 @@ const AuthPage = () => {
           </p>
         </div>
         
+        {successMessage && (
+          <div className="rounded-md bg-green-50 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-green-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.707-7.707a1 1 0 011.414 0L10 11.586l1.293-1.293a1 1 0 011.414 1.414l-2 2a1 1 0 01-1.414 0l-2-2a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">{successMessage}</h3>
+              </div>
+            </div>
+          </div>
+        )}
+
         {apiError && (
           <div className="rounded-md bg-red-50 p-4">
             <div className="flex">
@@ -168,6 +208,25 @@ const AuthPage = () => {
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
+            {!isLogin && (
+              <div>
+                <label htmlFor="username" className="sr-only">Username</label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className={`appearance-none rounded-lg relative block w-full px-3 py-2 border ${
+                    errors.username ? 'border-red-300' : 'border-gray-300'
+                  } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                  placeholder="Username"
+                  disabled={loading}
+                />
+                {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
+              </div>
+            )}
+
             {!isLogin && (
               <div>
                 <label htmlFor="name" className="sr-only">Name</label>
@@ -222,22 +281,39 @@ const AuthPage = () => {
             </div>
 
             {!isLogin && (
-              <div>
-                <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
+              <>
+                <div>
+                  <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className={`appearance-none rounded-lg relative block w-full px-3 py-2 border ${
+                      errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                    } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
+                    placeholder="Confirm password"
+                    disabled={loading}
+                  />
+                  {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+                </div>
+                
+                {/* Hidden role field - set to 'candidate' by default */}
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className={`appearance-none rounded-lg relative block w-full px-3 py-2 border ${
-                    errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
-                  placeholder="Confirm password"
-                  disabled={loading}
+                  type="hidden"
+                  name="role"
+                  value={formData.role}
                 />
-                {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
-              </div>
+                
+                <div className="flex items-center">
+                  <div className="flex items-center">
+                    <p className="text-sm text-gray-500">
+                      You will be registered as a <span className="font-medium text-indigo-600">Candidate</span>
+                    </p>
+                  </div>
+                </div>
+              </>
             )}
           </div>
 

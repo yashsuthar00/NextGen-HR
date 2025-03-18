@@ -23,7 +23,6 @@ const UserSchema = new mongoose.Schema(
      },
      department: {
         type: String,
-        required: [true, "department must be required"]
      },
     role: { 
         type: mongoose.Schema.Types.ObjectId, 
