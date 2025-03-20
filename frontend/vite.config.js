@@ -10,4 +10,7 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  optimizeDeps: {
+    include: ['jwt-decode'], // Force Vite to optimize jwt-decode
+  },
 })

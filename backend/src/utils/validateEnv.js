@@ -24,17 +24,17 @@ const validateEnv = () => {
     JWT_SECRET: process.env.JWT_SECRET,
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1h',
 
-    // cloudinary Configuration
+    // Cloudinary Configuration
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
 
-    // google cloud Configuration
+    // Google Cloud Configuration
     GCP_PROJECT_ID: process.env.GCP_PROJECT_ID,
     GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
     GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS,
 
-    // admin Configuration for admin login access
+    // Admin Configuration for admin login access
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
     ADMIN_ROLE: process.env.ADMIN_ROLE || 'admin',
@@ -43,11 +43,10 @@ const validateEnv = () => {
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 
-    // Github OAuth Configuration
+    // GitHub OAuth Configuration
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
-
   };
 };
 
-export default validateEnv;
+export const env = validateEnv();

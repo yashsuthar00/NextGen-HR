@@ -1,6 +1,7 @@
 // backend/utils/initAdmin.js
 import User from '../models/userModel.js';
 import Role from '../models/roleModel.js';
+import { env } from './validateEnv.js';
 
 export const initializeAdmin = async () => {
   try {
@@ -11,10 +12,10 @@ export const initializeAdmin = async () => {
     }
     
     // Retrieve admin credentials from environment variables or use defaults for development
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@nexgenhr.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
-    const adminFullname = process.env.ADMIN_FULLNAME || 'Admin User';
+    const adminEmail = env.ADMIN_EMAIL || 'admin@nexgenhr.com';
+    const adminPassword = env.ADMIN_PASSWORD || 'admin123';
+    const adminUsername = env.ADMIN_USERNAME || 'admin';
+    const adminFullname = env.ADMIN_FULLNAME || 'Admin User';
     
     // Check if the admin account already exists
     const existingAdmin = await User.findOne({ email: adminEmail });

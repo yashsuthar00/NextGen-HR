@@ -2,6 +2,7 @@
 import User from '../models/userModel.js';
 import Role from '../models/roleModel.js';
 import jwt from 'jsonwebtoken';
+import { env } from '../utils/validateEnv.js';
 
 const login = async (req, res) => {
   try {
@@ -12,9 +13,11 @@ const login = async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
 
-    const token = jwt.sign({ id: user._id, role: user.role.name }, process.env.JWT_SECRET || 'NextGenHR', {
-      expiresIn: '1h',
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role.name }, // Include role in token payload
+      env.JWT_SECRET || 'NextGenHR',
+      { expiresIn: '1h' }
+    );
     res.json({
       token,
       user: {

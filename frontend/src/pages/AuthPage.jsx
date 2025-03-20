@@ -88,7 +88,7 @@ const AuthPage = () => {
 
           // Store token and user info in localStorage
           localStorage.setItem('authToken', token);
-          localStorage.setItem('user', JSON.stringify(user));
+          // localStorage.setItem('user', JSON.stringify(user));
 
           // Dispatch login action
           dispatch(login({ user, token }));

@@ -1,11 +1,11 @@
 // backend/routes/authRoutes.js
 import { Router } from 'express';
-import { login, register } from '../controllers/authController.js';
+import AuthController from '../controllers/AuthController.js';
 
 const router = Router();
 
 // Route for user login
-router.post('/login', login);
-router.post('/register', register);
+router.post('/login', AuthController.login);
+router.post('/register', AuthController.register);
 
 export default router;

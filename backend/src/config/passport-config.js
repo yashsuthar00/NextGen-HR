@@ -3,15 +3,13 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import User from '../models/userModel.js';
 import Role from '../models/roleModel.js';
-import dotenv from 'dotenv';
+import { env } from '../utils/validateEnv.js';
 import axios from 'axios';
-
-dotenv.config();
 
 // Google Strategy
 passport.use('google', new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    clientID: env.GOOGLE_CLIENT_ID,
+    clientSecret: env.GOOGLE_CLIENT_SECRET,
     callbackURL: "/auth/google/callback"
   },
   async (accessToken, refreshToken, profile, done) => {
@@ -49,8 +47,8 @@ passport.use('google', new GoogleStrategy({
 
 // GitHub Strategy
 passport.use('github', new GitHubStrategy({
-    clientID: process.env.GITHUB_CLIENT_ID,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    clientID: env.GITHUB_CLIENT_ID,
+    clientSecret: env.GITHUB_CLIENT_SECRET,
     callbackURL: "/auth/github/callback",
     scope: ['user:email'],
 },

@@ -1,20 +1,20 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/connectDB.js';
-import validateEnv from './utils/validateEnv.js';
+import { env } from './utils/validateEnv.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import oauthRoutes from './routes/oauthRoutes.js';
 import { initializeRoles } from './utils/initRoles.js';
 import { initializeAdmin } from './utils/initAdmin.js';
 import cors from 'cors';
 import passport from './config/passport-config.js';
 import session from 'express-session';
 
-
 dotenv.config();
 const app = express();
 
-const { PORT, MONGO_URI, SESSION_SECRET, CLIENT_URL } = validateEnv();
+const { PORT, MONGO_URI, SESSION_SECRET, CLIENT_URL } = env;
 
 // Middleware to parse JSON requests
 app.use(express.json());
@@ -92,6 +92,7 @@ app.get('/logout', (req, res) => {
 // Define API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/auth', oauthRoutes); // Add OAuth routes
 
 connectDB(MONGO_URI)
   .then(async () => {

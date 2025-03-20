@@ -2,9 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   isAuthenticated: false,
-  user: null,
   token: null,
-  role: null, // Add role to the initial state
 };
 
 // Load state from local storage if available
@@ -27,19 +25,16 @@ const authSlice = createSlice({
   reducers: {
     login(state, action) {
       state.isAuthenticated = true;
-      state.user = action.payload.user;
       state.token = action.payload.token;
-      state.role = action.payload.user.role; // Set role on login
       // Save state to local storage
-      localStorage.setItem('authState', JSON.stringify(state));
+      localStorage.setItem('authState', JSON.stringify({ isAuthenticated: true, token: action.payload.token }));
     },
     logout(state) {
       state.isAuthenticated = false;
-      state.user = null;
       state.token = null;
-      state.role = null; // Clear role on logout
       // Remove state from local storage
       localStorage.removeItem('authState');
+      localStorage.removeItem('authToken'); // Ensure authToken is also cleared
     },
   },
 });
