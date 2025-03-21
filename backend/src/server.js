@@ -5,6 +5,7 @@ import { env } from './utils/validateEnv.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import oauthRoutes from './routes/oauthRoutes.js';
+import jobRoutes from './routes/jobRoutes.js'
 import { initializeRoles } from './utils/initRoles.js';
 import { initializeAdmin } from './utils/initAdmin.js';
 import cors from 'cors';
@@ -92,7 +93,8 @@ app.get('/logout', (req, res) => {
 // Define API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/auth', oauthRoutes); // Add OAuth routes
+app.use('/auth', oauthRoutes); 
+app.use ('/api/jobs', jobRoutes);
 
 connectDB(MONGO_URI)
   .then(async () => {
