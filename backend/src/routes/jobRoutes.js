@@ -6,12 +6,11 @@ import RoleMiddleware from '../middlewares/roleMiddleware.js';
 const router = Router();
 
 router.use(AuthMiddleware.protect);
-router.use(RoleMiddleware.hrAndAdminOnly)
 
 router.get('/', JobController.getJobs);
-router.post('/', JobController.createJob);
-router.get('/:id', JobController.getJobById);
-router.delete('/:id', JobController.deleteJob);
-router.put('/:id', JobController.updateJob);
+router.post('/', RoleMiddleware.hrAndAdminOnly, JobController.createJob);
+router.get('/:id', RoleMiddleware.hrAndAdminOnly, JobController.getJobById);
+router.delete('/:id', RoleMiddleware.hrAndAdminOnly, JobController.deleteJob);
+router.put('/:id', RoleMiddleware.hrAndAdminOnly, JobController.updateJob);
 
 export default router;
