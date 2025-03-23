@@ -2,6 +2,7 @@
 __pycache__/
 instance/
 .env
+/env
 .venv/
 .venv.bak/
 # Flask specific files

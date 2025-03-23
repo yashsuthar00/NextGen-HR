@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const requiredEnvVars = ['PORT', 'MONGO_URI'];
+const requiredEnvVars = ['PORT', 'MONGO_URI', 'GCS_BUCKET_NAME', 'GOOGLE_APPLICATION_CREDENTIALS'];
 
 const validateEnv = () => {
   const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);

@@ -4,6 +4,7 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    job_id: '',
     resume: null
   });
   const [errors, setErrors] = useState({});
@@ -12,8 +13,12 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    
+
     if (name === 'resume' && files && files[0]) {
+      if (files[0].type !== 'application/pdf') {
+        setErrors({ ...errors, resume: 'Only PDF files are allowed' });
+        return;
+      }
       setFormData({
         ...formData,
         resume: files[0]
@@ -25,7 +30,7 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
         [name]: value
       });
     }
-    
+
     // Clear error when field is edited
     if (errors[name]) {
       setErrors({
@@ -37,35 +42,45 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
 
   const validate = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       newErrors.email = 'Invalid email format';
     }
-    
+
+    if (!formData.job_id.trim()) {
+      newErrors.job_id = 'Job ID is required';
+    }
+
     if (!formData.resume) {
       newErrors.resume = 'Resume is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validate()) {
       return;
     }
-    
+
     setIsSubmitting(true);
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('job_id', formData.job_id);
+    formDataToSend.append('pdf', formData.resume);
+
     try {
-      await onSubmit(formData);
+      await onSubmit(formDataToSend);
     } catch (err) {
       console.error(err);
     } finally {
@@ -116,6 +131,26 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
       </div>
 
       <div className="mb-4">
+        <label htmlFor="job_id" className="block text-gray-700 font-medium mb-2">
+          Job ID <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="job_id"
+          name="job_id"
+          value={formData.job_id}
+          onChange={handleChange}
+          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            errors.job_id ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'
+          }`}
+          placeholder="Enter the Job ID"
+        />
+        {errors.job_id && (
+          <p className="text-red-500 text-sm mt-1">{errors.job_id}</p>
+        )}
+      </div>
+
+      <div className="mb-4">
         <label htmlFor="resume" className="block text-gray-700 font-medium mb-2">
           Resume <span className="text-red-500">*</span>
         </label>
@@ -130,7 +165,7 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
               name="resume"
               onChange={handleChange}
               className="hidden"
-              accept=".pdf,.doc,.docx"
+              accept=".pdf"
             />
           </label>
           <button
@@ -148,7 +183,7 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
           <p className="text-red-500 text-sm mt-1">{errors.resume}</p>
         )}
         <p className="text-gray-500 text-sm mt-1">
-          Accepted formats: PDF, DOC, DOCX
+          Accepted format: PDF
         </p>
       </div>
 
