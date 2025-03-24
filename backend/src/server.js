@@ -11,6 +11,7 @@ import { initializeAdmin } from './utils/initAdmin.js';
 import cors from 'cors';
 import passport from './config/passport-config.js';
 import session from 'express-session';
+import applyForJobRoute from './routes/applyForJobRoute.js'; 
 
 dotenv.config();
 const app = express();
@@ -95,6 +96,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/auth', oauthRoutes); 
 app.use ('/api/jobs', jobRoutes);
+app.use('/api/job', applyForJobRoute); // Assuming you have a route for job applications
 
 connectDB(MONGO_URI)
   .then(async () => {
