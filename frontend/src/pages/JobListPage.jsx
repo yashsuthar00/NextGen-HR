@@ -95,13 +95,14 @@ const JobListPage = () => {
     setSelectedJob(job);
     setShowApplyForm(true);
   };
+  
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Job Openings</h1>
         
-        {userRole === 'hr' && (
+        {userRole === 'admin' && (
           <button 
             onClick={() => setShowJobForm(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center transition-colors duration-300"
@@ -123,7 +124,7 @@ const JobListPage = () => {
       ) : jobs.length === 0 ? (
         <div className="text-center py-16 bg-gray-50 rounded-lg">
           <h3 className="text-lg font-medium text-gray-600">No job openings available at the moment</h3>
-          {userRole === 'hr' && (
+          {userRole === 'admin' && (
             <p className="mt-2 text-gray-500">Click "Post New Job" to create your first job posting.</p>
           )}
         </div>

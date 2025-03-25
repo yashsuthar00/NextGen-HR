@@ -1,6 +1,7 @@
 // src/pages/Dashboard.jsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import {jwtDecode} from 'jwt-decode';
 import AdminDashboard from '../components/AdminDashboard.jsx';
 import HRDashboard from '../components/HRDashboard.jsx';
@@ -28,7 +29,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <Navbar />
+      {/* <Navbar /> */}
       <Routes>
         {role === 'admin' && <Route path="/" element={<AdminDashboard />} />}
         {role === 'hr' && <Route path="/" element={<HRDashboard />} />}

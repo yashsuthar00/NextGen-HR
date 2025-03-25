@@ -1,311 +1,634 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { Mic, MicOff, Video, VideoOff, ChevronRight, Info, X } from 'lucide-react';
+import styled from 'styled-components';
 
-const InterviewPage = () => {
-  // Sample interview questions
-  const interviewQuestions = [
-    "Tell me about your background and experience in this field.",
-    "What are your greatest strengths and how do they help you in your professional life?",
-    "Describe a challenging situation you faced at work and how you resolved it.",
-    "Why are you interested in this position?",
-    "Where do you see yourself professionally in five years?"
-  ];
+// Styled Components
+const AppContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  color: #1f2937;
+  line-height: 1.5;
+`;
 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+const InterviewContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+`;
+
+const VideoSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const VideoContainer = styled.div`
+  position: relative;
+  background-color: #000;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+`;
+
+const VideoPreview = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const RecordingIndicator = styled.div`
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background-color: rgba(239, 68, 68, 0.9);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  animation: pulse 1.5s infinite;
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+`;
+
+const RecordingTime = styled.div`
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+`;
+
+const Controls = styled.div`
+  display: flex;
+  gap: 1rem;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+`;
+
+const ControlButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  
+  &:hover {
+    background-color: #f9fafb;
+  }
+  
+  &.active {
+    background-color: #4f46e5;
+    color: white;
+    border-color: #4f46e5;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const QuestionSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const ProgressIndicator = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const ProgressText = styled.div`
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+`;
+
+const ProgressBar = styled.div`
+  height: 0.5rem;
+  background-color: #e5e7eb;
+  border-radius: 1rem;
+  overflow: hidden;
+`;
+
+const ProgressFilled = styled.div`
+  height: 100%;
+  background-color: #4f46e5;
+  transition: width 0.3s ease;
+  width: ${props => props.percentage}%;
+`;
+
+const QuestionCard = styled.div`
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const QuestionTitle = styled.h2`
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #6b7280;
+`;
+
+const QuestionText = styled.p`
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.6;
+`;
+
+const NextButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: auto;
+  
+  &:hover {
+    background-color: #4338ca;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const RecordingsSummary = styled.div`
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const RecordingsTitle = styled.h3`
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+`;
+
+const RecordingsList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const RecordingItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+`;
+
+const RecordingLinks = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  
+  @media (max-width: 480px) {
+    width: 100%;
+  }
+`;
+
+const DownloadLink = styled.a`
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #4338ca;
+    text-decoration: underline;
+  }
+  
+  opacity: ${props => props.disabled ? 0.5 : 1};
+`;
+
+// Guide Popup Styles
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+`;
+
+const ModalBody = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const StepList = styled.ol`
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+`;
+
+const Step = styled.li`
+  margin-bottom: 0.75rem;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  
+  &:hover {
+    color: #1f2937;
+  }
+`;
+
+const ConfirmButton = styled.button`
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  
+  &:hover {
+    background-color: #4338ca;
+  }
+`;
+
+function InterviewPage() {
   const [isRecording, setIsRecording] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [recordingStatus, setRecordingStatus] = useState("Not started");
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [audioBlobs, setAudioBlobs] = useState([]);
+  const [videoBlobs, setVideoBlobs] = useState([]);
+  const [showGuide, setShowGuide] = useState(true);
+  const [isCameraReady, setIsCameraReady] = useState(false);
   
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioRecorderRef = useRef(null);
   const streamRef = useRef(null);
-  const speechSynthesisRef = useRef(null);
-  const navigate = useNavigate();
+  const timerRef = useRef(null);
   
-  const videoChunks = useRef([]);
-  const audioChunks = useRef([]);
+  // Sample questions - in a real app, these would come from an API
+  const questions = [
+    "Tell me about yourself and your background.",
+    "What are your greatest strengths and how do they help you succeed?",
+    "Describe a challenging situation you faced and how you overcame it.",
+    "Why are you interested in this position?",
+    "Where do you see yourself in five years?",
+  ];
 
-  // Initialize recording
+  // Start media stream when guide is dismissed
   useEffect(() => {
-    const startMedia = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: true, 
-          audio: true 
-        });
-        
-        streamRef.current = stream;
-        
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-        
-        setRecordingStatus("Ready to start");
-      } catch (err) {
-        console.error("Error accessing media devices:", err);
-        setRecordingStatus("Error: Could not access camera or microphone");
-      }
-    };
+    if (!showGuide) {
+      setupCamera();
+    }
     
-    startMedia();
-    
-    // Cleanup function
     return () => {
+      // Clean up
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
-      
-      if (speechSynthesisRef.current) {
-        window.speechSynthesis.cancel();
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
       }
     };
-  }, []);
-
-  // Function to speak the current question
-  const speakQuestion = (text) => {
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    setIsSpeaking(true);
-    const utterance = new SpeechSynthesisUtterance(text);
-    
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-    
-    speechSynthesisRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
+  }, [showGuide]);
+  
+  const setupCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: { width: 1280, height: 720 }
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      
+      streamRef.current = stream;
+      setIsCameraReady(true);
+      
+      // Speak the first question after camera is ready
+      speakQuestion(questions[0]);
+    } catch (err) {
+      console.error("Error accessing media devices:", err);
+      alert("Please allow camera and microphone access to use this application.");
+    }
   };
-
-  // Start recording for the first question
-  const startInterview = () => {
-    setIsRecording(true);
-    startRecordingChunk();
-    speakQuestion(interviewQuestions[currentQuestionIndex]);
-    setRecordingStatus("Recording");
+  
+  const speakQuestion = (question) => {
+    const utterance = new SpeechSynthesisUtterance(question);
+    utterance.rate = 0.9; // Slightly slower for clarity
+    utterance.pitch = 1;
+    speechSynthesis.speak(utterance);
   };
-
-  // Start recording a new chunk
-  const startRecordingChunk = () => {
+  
+  const startRecording = () => {
     if (!streamRef.current) return;
     
-    // Set up video recorder
-    const videoRecorder = new MediaRecorder(
-      new MediaStream(streamRef.current.getVideoTracks()),
-      { mimeType: 'video/webm' }
-    );
+    // Video recorder
+    const videoRecorder = new MediaRecorder(streamRef.current);
+    const videoChunks = [];
     
-    videoRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        videoChunks.current.push(e.data);
+    videoRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        videoChunks.push(event.data);
       }
     };
     
-    // Set up audio recorder
-    const audioRecorder = new MediaRecorder(
-      new MediaStream(streamRef.current.getAudioTracks()),
-      { mimeType: 'audio/webm' }
-    );
+    videoRecorder.onstop = () => {
+      const videoBlob = new Blob(videoChunks, { type: 'video/webm' });
+      setVideoBlobs(prev => [...prev, videoBlob]);
+    };
     
-    audioRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        audioChunks.current.push(e.data);
+    // Audio recorder (separate)
+    const audioStream = new MediaStream(streamRef.current.getAudioTracks());
+    const audioRecorder = new MediaRecorder(audioStream);
+    const audioChunks = [];
+    
+    audioRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        audioChunks.push(event.data);
       }
     };
     
+    audioRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      setAudioBlobs(prev => [...prev, audioBlob]);
+    };
+    
+    // Start both recorders
+    videoRecorder.start();
+    audioRecorder.start();
+    
+    // Store references
     mediaRecorderRef.current = videoRecorder;
     audioRecorderRef.current = audioRecorder;
     
-    videoRecorder.start();
-    audioRecorder.start();
-  };
-
-  // Save the current chunk and move to next question
-  const saveChunkAndMoveNext = async () => {
-    // Stop any ongoing speech
-    window.speechSynthesis.cancel();
-    setIsSpeaking(false);
+    // Start timer
+    timerRef.current = setInterval(() => {
+      setRecordingTime(prev => prev + 1);
+    }, 1000);
     
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+    setIsRecording(true);
+  };
+  
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && audioRecorderRef.current) {
       mediaRecorderRef.current.stop();
       audioRecorderRef.current.stop();
-      
-      // Wait for the data to be available
-      await new Promise(resolve => {
-        mediaRecorderRef.current.onstop = resolve;
-      });
-      
-      // Create video blob and upload
-      const videoBlob = new Blob(videoChunks.current, { type: 'video/mp4' });
-      const audioBlob = new Blob(audioChunks.current, { type: 'audio/m4a' });
-      
-      // Upload the current chunks
-      uploadChunk(videoBlob, audioBlob, currentQuestionIndex);
-      
-      // Reset chunks for next recording
-      videoChunks.current = [];
-      audioChunks.current = [];
-      
-      // Move to next question or end interview
-      if (currentQuestionIndex < interviewQuestions.length - 1) {
-        const nextIndex = currentQuestionIndex + 1;
-        setCurrentQuestionIndex(nextIndex);
-        
-        // Start recording for next question
-        startRecordingChunk();
-        
-        // Speak the next question
-        speakQuestion(interviewQuestions[nextIndex]);
-      } else {
-        // End of interview
-        endInterview();
-      }
+      clearInterval(timerRef.current);
+      setIsRecording(false);
+      setRecordingTime(0);
     }
   };
-
-  // Upload chunks to backend
-  const uploadChunk = async (videoBlob, audioBlob, questionIndex) => {
-    try {
-      const formData = new FormData();
-      formData.append('video', videoBlob, `question_${questionIndex + 1}.mp4`);
-      formData.append('audio', audioBlob, `question_${questionIndex + 1}.m4a`);
-      formData.append('questionIndex', questionIndex);
-      formData.append('questionText', interviewQuestions[questionIndex]);
-      
-      await axios.post('http://localhost:8000/api/upload-chunk', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
-      console.log(`Chunk ${questionIndex + 1} uploaded successfully`);
-    } catch (error) {
-      console.error('Error uploading chunk:', error);
-    }
-  };
-
-  // End the interview
-  const endInterview = () => {
-    setIsRecording(false);
-    setRecordingStatus("Interview completed");
-    
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+  
+  const handleNextQuestion = () => {
+    // Stop current recording
+    if (isRecording) {
+      stopRecording();
     }
     
-    window.speechSynthesis.cancel();
-    
-    // Navigate to completion page or show completion message
-    setTimeout(() => {
-      navigate('/interview-complete');
-    }, 2000);
-  };
-
-  // Force end interview
-  const forceEndInterview = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
-      mediaRecorderRef.current.stop();
-      audioRecorderRef.current.stop();
+    // Move to next question if available
+    if (currentQuestionIndex < questions.length - 1) {
+      const nextIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(nextIndex);
+      speakQuestion(questions[nextIndex]);
       
-      // Upload the last chunk if there's data
-      if (videoChunks.current.length > 0 && audioChunks.current.length > 0) {
-        const videoBlob = new Blob(videoChunks.current, { type: 'video/mp4' });
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/m4a' });
-        uploadChunk(videoBlob, audioBlob, currentQuestionIndex);
-      }
+      // Short delay before starting new recording
+      setTimeout(() => {
+        startRecording();
+      }, 1000);
+    } else {
+      // Interview completed
+      alert("Interview completed! Recordings have been saved.");
     }
-    
-    window.speechSynthesis.cancel();
-    
-    endInterview();
   };
-
+  
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+  
+  const handleGuideConfirm = () => {
+    setShowGuide(false);
+  };
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">AI Interview</h1>
+    <AppContainer>
+      {/* Pre-Interview Guide/Popup */}
+      {showGuide && (
+        <ModalOverlay>
+          <ModalContent>
+            <CloseButton onClick={handleGuideConfirm}>
+              <X size={18} />
+            </CloseButton>
+            
+            <ModalHeader>
+              <Info size={24} color="#4f46e5" />
+              <ModalTitle>Welcome to the AI Interview</ModalTitle>
+            </ModalHeader>
+            
+            <ModalBody>
+              <p>Before we begin, here's a quick guide on how this works:</p>
+              
+              <StepList>
+                <Step>The AI will ask you questions that will be displayed on screen and spoken out loud.</Step>
+                <Step>You'll need to allow camera and microphone access when prompted.</Step>
+                <Step>Click "Start Recording" to begin recording your answer.</Step>
+                <Step>When finished, click "Next Question" to proceed to the next question.</Step>
+                <Step>Your responses will be recorded in separate audio and video files for each question.</Step>
+                <Step>After completing all questions, you can download your recordings.</Step>
+              </StepList>
+              
+              <p>Ready to start your interview? Click the button below to continue.</p>
+            </ModalBody>
+            
+            <ConfirmButton onClick={handleGuideConfirm}>
+              I'm Ready to Begin
+            </ConfirmButton>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+      
+      <InterviewContainer>
+        <VideoSection>
+          <VideoContainer>
+            <VideoPreview ref={videoRef} autoPlay muted playsInline />
+            {isRecording && <RecordingIndicator>● REC</RecordingIndicator>}
+            <RecordingTime>{formatTime(recordingTime)}</RecordingTime>
+          </VideoContainer>
           
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-500">
-                Question {currentQuestionIndex + 1} of {interviewQuestions.length}
-              </span>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                isRecording ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"
-              }`}>
-                {recordingStatus}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div 
-                className="bg-blue-600 h-2.5 rounded-full" 
-                style={{ width: `${((currentQuestionIndex) / interviewQuestions.length) * 100}%` }}
-              ></div>
-            </div>
-          </div>
+          <Controls>
+            <ControlButton 
+              className={isRecording ? 'active' : ''}
+              onClick={toggleRecording}
+              disabled={!isCameraReady}
+            >
+              {isRecording ? <VideoOff size={20} /> : <Video size={20} />}
+              <span>{isRecording ? 'Stop Recording' : 'Start Recording'}</span>
+            </ControlButton>
+            
+            <ControlButton 
+              className="mic-button"
+              disabled={!isRecording}
+            >
+              {isRecording ? <Mic size={20} /> : <MicOff size={20} />}
+              <span>Audio {isRecording ? 'On' : 'Off'}</span>
+            </ControlButton>
+          </Controls>
+        </VideoSection>
+        
+        <QuestionSection>
+          <ProgressIndicator>
+            <ProgressText>
+              Question {currentQuestionIndex + 1} of {questions.length}
+            </ProgressText>
+            <ProgressBar>
+              <ProgressFilled percentage={((currentQuestionIndex + 1) / questions.length) * 100} />
+            </ProgressBar>
+          </ProgressIndicator>
           
-          <div className="bg-gray-50 rounded-lg p-6 mb-6 shadow-inner min-h-[100px]">
-            <h2 className="text-xl font-medium text-gray-700 mb-2">
-              {interviewQuestions[currentQuestionIndex]}
-            </h2>
-            {isSpeaking && (
-              <span className="inline-flex items-center text-sm text-blue-600">
-                <svg className="w-4 h-4 mr-2 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                </svg>
-                Speaking...
-              </span>
-            )}
-          </div>
+          <QuestionCard>
+            <QuestionTitle>Question:</QuestionTitle>
+            <QuestionText>{questions[currentQuestionIndex]}</QuestionText>
+          </QuestionCard>
           
-          <div className="flex justify-center mb-6">
-            <div className="bg-black rounded-lg overflow-hidden w-full max-w-md aspect-video">
-              <video 
-                ref={videoRef} 
-                autoPlay 
-                muted 
-                playsInline
-                className="w-full h-full object-cover"
-              ></video>
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-4 justify-center">
-            {!isRecording ? (
-              <button
-                onClick={startInterview}
-                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
-              >
-                Start Interview
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={saveChunkAndMoveNext}
-                  disabled={isSpeaking}
-                  className={`px-6 py-3 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors ${
-                    isSpeaking ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+          <NextButton 
+            onClick={handleNextQuestion}
+            disabled={currentQuestionIndex >= questions.length - 1 && !isRecording}
+          >
+            {currentQuestionIndex >= questions.length - 1 ? 'Finish Interview' : 'Next Question'}
+            <ChevronRight size={20} />
+          </NextButton>
+        </QuestionSection>
+      </InterviewContainer>
+      
+      <RecordingsSummary>
+        <RecordingsTitle>Recordings</RecordingsTitle>
+        <RecordingsList>
+          {videoBlobs.map((blob, index) => (
+            <RecordingItem key={index}>
+              <span>Recording {index + 1}</span>
+              <RecordingLinks>
+                <DownloadLink 
+                  href={URL.createObjectURL(blob)} 
+                  download={`interview-video-${index + 1}.webm`}
                 >
-                  {currentQuestionIndex < interviewQuestions.length - 1 ? "Next Question" : "Finish Interview"}
-                </button>
-                
-                <button
-                  onClick={forceEndInterview}
-                  className="px-6 py-3 bg-red-600 text-white font-medium rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors"
+                  Download Video
+                </DownloadLink>
+                <DownloadLink 
+                  href={audioBlobs[index] ? URL.createObjectURL(audioBlobs[index]) : '#'} 
+                  download={`interview-audio-${index + 1}.webm`}
+                  disabled={!audioBlobs[index]}
                 >
-                  End Interview
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+                  Download Audio
+                </DownloadLink>
+              </RecordingLinks>
+            </RecordingItem>
+          ))}
+        </RecordingsList>
+      </RecordingsSummary>
+    </AppContainer>
   );
-};
+}
 
 export default InterviewPage;
