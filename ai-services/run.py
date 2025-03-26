@@ -1,4 +1,5 @@
 from app import create_app
+import app.instance.mongodb 
 
 app = create_app()
 
