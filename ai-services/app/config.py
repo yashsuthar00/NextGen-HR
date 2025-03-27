@@ -1,14 +1,13 @@
 import os
 from dotenv import load_dotenv
+from flask import Flask
+from app.utils.env_validator import validate_env_variables  # Import the validator
 
-load_dotenv()
-
-class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY")
-    MONGO_URI = os.getenv("MONGO_URI")
+def configure_app(app: Flask):
+    load_dotenv()
 
     # Validate required environment variables
-    if not SECRET_KEY:
-        raise EnvironmentError("Error: SECRET_KEY is not set in the .env file.")
-    if not MONGO_URI:
-        raise EnvironmentError("Error: MONGO_URI is not set in the .env file.")
+    validate_env_variables(["SECRET_KEY", "MONGO_URI"])
+
+    app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+    app.config['MONGO_URI'] = os.getenv("MONGO_URI")
