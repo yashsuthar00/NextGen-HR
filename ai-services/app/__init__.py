@@ -3,6 +3,9 @@ from .routes import main
 from .config import configure_app
 from flask_pymongo import PyMongo  # Import PyMongo
 from urllib.parse import urlparse
+import pika
+import json
+
 
 mongo = PyMongo()  # Create a PyMongo instance
 

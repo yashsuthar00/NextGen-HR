@@ -12,6 +12,7 @@ import cors from 'cors';
 import passport from './config/passport-config.js';
 import session from 'express-session';
 import applyForJobRoute from './routes/applyForJobRoute.js'; 
+import { connectRabbitMQ, closeRabbitMQ } from './utils/rabbitMQ.js';
 
 dotenv.config();
 const app = express();
@@ -100,6 +101,7 @@ app.use('/api/job', applyForJobRoute); // Assuming you have a route for job appl
 
 connectDB(MONGO_URI)
   .then(async () => {
+    await connectRabbitMQ(); // Connect to RabbitMQ
     await initializeRoles();
     await initializeAdmin();
     app.listen(PORT, () => {
@@ -109,3 +111,8 @@ connectDB(MONGO_URI)
   .catch((err) => {
     console.error("Database connection error:", err);
   });
+
+process.on('SIGINT', async () => {
+  await closeRabbitMQ(); // Close RabbitMQ connection on server shutdown
+  process.exit(0);
+});

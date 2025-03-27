@@ -2,6 +2,7 @@ import express from 'express';
 import upload from '../config/multerConfig.js';
 import { uploadFileToGCS } from '../utils/googleCloudStorage.js';
 import Application from '../models/applicationModel.js';
+import { sendMessage } from '../utils/rabbitMQ.js'; // Import the sendMessage function
 
 const router = express.Router();
 
@@ -48,13 +49,10 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
     const application = await Application.create(applicationData);
 
+    // Send application data to RabbitMQ
+    await sendMessage('new_job_application_queue', application); // Use a new queue name
 
-    // Send the signed URL to Kafka (topic name can be adjusted as needed)
-    // await sendUrlToKafka('resume-uploads', fileUrl);
-
-
-
-    res.status(200).json({ message: 'File uploaded successfully.', fileUrl, message: 'gsutil url .', gsutilUrl, application });
+    res.status(200).json({ message: 'File uploaded successfully.', fileUrl, gsutilUrl, application });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error uploading file.' });
