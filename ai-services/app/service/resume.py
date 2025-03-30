@@ -187,7 +187,7 @@ def async_detect_text_in_pdf(service_account_json_path, gcs_source_uri, gcs_dest
 
     operation = client.async_batch_annotate_files(requests=[async_request])
     print("Waiting for operation to complete...")
-    operation.result(timeout=300)
+    operation.result(timeout=300)   
 
     storage_client = storage.Client.from_service_account_json(service_account_json_path)
 
@@ -207,11 +207,15 @@ def async_detect_text_in_pdf(service_account_json_path, gcs_source_uri, gcs_dest
         if not json_data:
             continue
 
-        response = vision.AnnotateFileResponse.from_json(json_data)
+        try:
+            response = vision.AnnotateFileResponse.from_json(json_data.decode("utf-8"))
 
-        for annotation_response in response.responses:
-            if annotation_response.full_text_annotation.text:
-                full_text_markdown.append(annotation_response.full_text_annotation.text)
+            for annotation_response in response.responses:
+                if annotation_response.full_text_annotation.text:
+                    full_text_markdown.append(annotation_response.full_text_annotation.text)
+
+        except Exception as e:
+            print(f"Error processing blob {blob.name}: {e}")
 
     return "\n".join(full_text_markdown)
 

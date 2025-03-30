@@ -29,3 +29,5 @@ def create_app():
         print("Failed to retrieve the database name!")
 
     return app
+
+app = create_app()
