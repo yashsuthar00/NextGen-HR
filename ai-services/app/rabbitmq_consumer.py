@@ -2,16 +2,13 @@ import pika
 import json
 import re
 from flask import current_app
-from app.service.resume import process_resume, async_detect_text_in_pdf, summarize_resume, ats_scanner  # Import the function to process the resume
+from app.service.resume import process_resume, async_detect_text_in_pdf, summarize_resume, ats_scanner  
 from app.service.questionsGenerator import generate_interview_questions, split_questions, ensure_question_marks
+from app.service.applicationData import fetch_application_data
 from app import app  
 
 SERVICE_ACCOUNT_JSON = r"./../env/nextgen-hr-8ce4fa070811.json"
 GCS_DESTINATION_URI = "gs://bucket_nextgen-hr/vision_output/"
-
-# Create the Flask app
-# app = create_app()
-
 
 def start_consumer():
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
@@ -24,8 +21,13 @@ def start_consumer():
         message = json.loads(body)
         print(f"Received message: {message}")
         
+        document = fetch_application_data(message)
+        print("\n fetched application document",document)
+
+        print("\n the resume url from the document:", document['resumeURL'])
+        
         # Extract the resumeURL from the message
-        resume_url = message.get('resumeURL')
+        resume_url = document['resumeURL']
         if resume_url:
             # Call the function in resume.py with the resumeURL
             print(f"Extracted resumeURL: {resume_url}")
@@ -42,7 +44,9 @@ def start_consumer():
             print("\n resume summary generated successfully:\n" , resume_summary)
 
             print("\n ats report generating process started ...")
-            ats_report = ats_scanner(resume_summary)
+            job_desciption = document['jobDetails']['description']
+            print("\n job description from the document:", job_desciption)
+            ats_report = ats_scanner(resume_summary, job_desciption)
             print("\n ats report generated successfully:")
             print(ats_report)
 
@@ -58,7 +62,7 @@ def start_consumer():
             else:
                 print("No score found.")
             print("\n genearting questions ....")
-            questions = generate_interview_questions(resume_summary)
+            questions = generate_interview_questions(resume_summary, job_desciption)
             print(questions)
 
             print("\n splitting questions ....")

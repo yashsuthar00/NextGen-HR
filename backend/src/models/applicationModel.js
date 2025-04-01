@@ -33,6 +33,11 @@ const applicationSchema = new mongoose.Schema(
             type: String,
             required: [true, "Resume must be required"],
         },
+        jobId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Job",
+            required: [true, "Job ID must be required"],
+        }
     },
     { timestamps: true }
 );

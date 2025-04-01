@@ -163,7 +163,7 @@ ats_prompt = """
         - Propose additions or modifications to better showcase the applicant's suitability.
 
     **Make sure the output always strictly follows this structure:**  
-    1. "Score" heading followed by the percentage score and nothing else in text.  
+    1. "Score:" heading followed by the percentage score and nothing else in text (for example- Score: 70%, or Score: 55%).  
     2. "Summary" heading followed by the detailed evaluation report.
     """ 
 
@@ -197,27 +197,31 @@ def async_detect_text_in_pdf(service_account_json_path, gcs_source_uri, gcs_dest
     bucket = storage_client.bucket(bucket_name)
     blob_list = list(bucket.list_blobs(prefix=prefix))
 
-    full_text_markdown = []
+    # ✅ Sort blobs by updated timestamp (get only the latest ones)
+    blob_list.sort(key=lambda blob: blob.updated, reverse=True)
 
+    # ✅ Process only the most recent JSON blob
+    latest_json_blob = None
     for blob in blob_list:
-        if not blob.name.endswith(".json"):
-            continue
+        if blob.name.endswith(".json"):
+            latest_json_blob = blob
+            break  # Stop at the most recent one
 
-        json_data = blob.download_as_bytes()
-        if not json_data:
-            continue
+    full_text_markdown = ""  # ✅ Use a string instead of a list
 
-        try:
-            response = vision.AnnotateFileResponse.from_json(json_data.decode("utf-8"))
+    if latest_json_blob:
+        json_data = latest_json_blob.download_as_bytes()
+        if json_data:
+            try:
+                response = vision.AnnotateFileResponse.from_json(json_data.decode("utf-8"))
+                for annotation_response in response.responses:
+                    if annotation_response.full_text_annotation.text:
+                        full_text_markdown = annotation_response.full_text_annotation.text  # ✅ Overwrite instead of append
+            except Exception as e:
+                print(f"Error processing blob {latest_json_blob.name}: {e}")
 
-            for annotation_response in response.responses:
-                if annotation_response.full_text_annotation.text:
-                    full_text_markdown.append(annotation_response.full_text_annotation.text)
+    return full_text_markdown  # ✅ Directly return the extracted text as a string
 
-        except Exception as e:
-            print(f"Error processing blob {blob.name}: {e}")
-
-    return "\n".join(full_text_markdown)
 
 # Function 2 - Summarize Resume
 def summarize_resume(resume_text, system_prompt=summarization_prompt):
@@ -250,7 +254,7 @@ def summarize_resume(resume_text, system_prompt=summarization_prompt):
     return summary
 
 
-def ats_scanner(resume_summary, job_description= job_description, system_prompt =ats_prompt):
+def ats_scanner(resume_summary, job_description, system_prompt =ats_prompt):
     system_message = {"role": "system", "content": system_prompt}
     user_prompt = f"Resume Summary:\n{resume_summary}\n\nJob Description:\n{job_description}"
     user_message = {"role": "user", "content": user_prompt}

@@ -150,7 +150,7 @@ resume_summary = """
 - Interests: Basketball (College-level Basketball Player), Painting, Skydiving (Jumped from an altitude exceeding 13,000 feet), Yoga, and Meditation"""
 
 
-def generate_interview_questions(resume_summary, system_prompt = system_prompt, job_description = job_description):
+def generate_interview_questions(resume_summary, job_description, system_prompt = system_prompt):
     # Define the system message using the provided prompt
     system_message = {
         "role": "system",
