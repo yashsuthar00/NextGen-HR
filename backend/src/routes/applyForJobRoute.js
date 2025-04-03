@@ -1,11 +1,11 @@
-import express from 'express';
+import {Router} from 'express';
 import upload from '../config/multerConfig.js';
-import { uploadFileToGCS } from '../utils/googleCloudStorage.js';
+import { uploadPdfToGCS } from '../utils/googleCloudStorage.js';
 import Application from '../models/applicationModel.js';
 import Job from '../models/jobModel.js'; 
 import { sendMessage } from '../utils/rabbitMQ.js';
 
-const router = express.Router();
+const router = Router();
 
 router.post('/upload', upload.single('file'), async (req, res) => {
   const { name, email, phone, jobId } = req.body;
@@ -42,7 +42,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     }
 
     // Upload file to Google Cloud Storage and get a signed URL
-    const fileUrl = await uploadFileToGCS(req.file.buffer, req.file.originalname, req.file.mimetype);
+    const fileUrl = await uploadPdfToGCS(req.file.buffer, req.file.originalname, req.file.mimetype);
 
     // Convert the signed URL to a gsutil URL
     const convertToGsutilUrl = (signedUrl) => {
