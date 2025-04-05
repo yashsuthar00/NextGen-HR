@@ -3,7 +3,7 @@ import json
 import re
 from flask import current_app
 from app.service.resume import process_resume, async_detect_text_in_pdf, summarize_resume, ats_scanner  
-from app.service.questionsGenerator import generate_interview_questions, split_questions, ensure_question_marks
+from app.service.questionsGenerator import generate_interview_questions, split_questions, ensure_question_marks, process_questions
 from app.service.applicationData import fetch_application_data
 from app import app  
 
@@ -65,18 +65,23 @@ def start_consumer():
             questions = generate_interview_questions(resume_summary, job_desciption)
             print(questions)
 
-            print("\n splitting questions ....")
-            questions_array = split_questions(questions)
+            # print("\n splitting questions ....")
+            # questions_array = split_questions(questions)
+            # print(questions_array)
+
+            # print("\n genearting questions with questions marks ....")
+            # questions_with_marks = ensure_question_marks(questions_array)
+
+            # print(questions_with_marks)
+
+            print("processing questions ....")
+            questions_array = process_questions(questions)
             print(questions_array)
 
-            print("\n genearting questions with questions marks ....")
-            questions_with_marks = ensure_question_marks(questions_array)
-
-            print(questions_with_marks)
-
             questionDocument = {
-                "questions": questions_with_marks,
-                "resumeURL": resume_url,
+                "jobId": document['jobDetails']['_id'],
+                "userId": document['userId'],
+                "questions": questions_array,
             }
 
             # Fetch the MONGO instance from app.config
@@ -84,7 +89,7 @@ def start_consumer():
             print("MONGO instance in callback:", mongo_instance)
 
             # Example of using the MONGO instance
-            result = mongo_instance.db.questions.insert_one(questionDocument)
+            result = mongo_instance.db.interviews.insert_one(questionDocument)
             print("Inserted question document with ID:", result.inserted_id)
             print("\n Question document inserted successfully:\n", questionDocument)
 

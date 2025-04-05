@@ -212,3 +212,21 @@ def ensure_question_marks(questions_array):
     
     return questions_array
 
+
+def process_questions(input_string):
+      """
+      Combines splitting, ensuring question marks, and formatting questions into objects.
+      """
+      # Split the string by the "//" separator
+      questions_array = input_string.split("//")
+      
+      # Strip whitespace from each question and filter out empty strings
+      questions_array = [question.strip() for question in questions_array if question.strip()]
+      
+      # Ensure each question ends with a question mark
+      for i in range(len(questions_array)):
+        if not questions_array[i].endswith('?'):
+          questions_array[i] += '?'
+      
+      # Convert the array of questions into an array of objects
+      return [{"question": question} for question in questions_array]

@@ -3,12 +3,13 @@ import upload from '../config/multerConfig.js';
 import { uploadPdfToGCS } from '../utils/googleCloudStorage.js';
 import Application from '../models/applicationModel.js';
 import Job from '../models/jobModel.js'; 
+import User from '../models/userModel.js';
 import { sendMessage } from '../utils/rabbitMQ.js';
 
 const router = Router();
 
 router.post('/upload', upload.single('file'), async (req, res) => {
-  const { name, email, phone, jobId } = req.body;
+  const { name, email, phone, jobId, userId } = req.body;
 
   // Validate request body
   if (!name) {
@@ -22,6 +23,10 @@ router.post('/upload', upload.single('file'), async (req, res) => {
   }
   if (!jobId) {
     return res.status(400).json({ message: 'Job ID is required.' });
+  }
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required.' });
   }
 
   // Validate file uploads
@@ -62,6 +67,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       email,
       phone,
       jobId, 
+      userId,
       resumeURL: gsutilUrl, // Store the signed URL in the database
     };
 

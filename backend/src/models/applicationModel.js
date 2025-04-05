@@ -37,7 +37,12 @@ const applicationSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Job",
             required: [true, "Job ID must be required"],
-        }
+        },
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: [true, "User ID must be required"],
+        },
     },
     { timestamps: true }
 );
