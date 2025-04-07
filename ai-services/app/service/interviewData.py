@@ -22,7 +22,6 @@ def fetch_interview_data(id):
         #     job_document = mongo_instance.db.jobs.find_one({"_id": ObjectId(job_id)})
         #     interview_document["jobDetails"] = job_document
         
-        return interview_document
     except Exception as e:
         return f"An error occurred: {e}"
     
