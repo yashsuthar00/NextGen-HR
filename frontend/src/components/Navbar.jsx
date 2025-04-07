@@ -34,7 +34,6 @@ const Navbar = () => {
         {role === 'admin' && (
           <Link to="/admin/users" style={{ marginLeft: '1rem' }}>User</Link>
         )}
-          <Link to="/jobs" style={{ marginLeft: '1rem' }}>jobs</Link>
       </div>
       <button onClick={handleLogout}>Logout</button>
     </nav>

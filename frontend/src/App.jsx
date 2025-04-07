@@ -6,8 +6,6 @@ import AuthPage from './pages/AuthPage.jsx';
 import UserManagementSystem from './components/UserManagementSystem.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
-import JobsPage from './pages/JobListPage.jsx';
-
 function App() {
   return (
     <Routes>
@@ -28,7 +26,6 @@ function App() {
           </ProtectedRoute>
         } 
       />
-      <Route path="/jobs" element={<JobsPage />} />
       <Route path='/' element={<AuthPage />} />
       <Route path="/not-found" element={<NotFoundPage />} />
       <Route path="*" element={<Navigate to="/not-found" replace />} />

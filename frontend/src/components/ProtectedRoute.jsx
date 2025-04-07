@@ -10,17 +10,6 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/login" />;
   }
 
-  const currentTime = Math.floor(Date.now() / 1000);
-  try {
-    const decoded = jwtDecode(auth.token);
-    if (decoded.exp < currentTime) {
-      return <Navigate to="/login" />;
-    }
-  } catch (error) {
-    console.error('Invalid token:', error);
-    return <Navigate to="/login" />;
-  }
-
   try {
     const decoded = jwtDecode(auth.token);
     if (requiredRole && decoded.role !== requiredRole) {

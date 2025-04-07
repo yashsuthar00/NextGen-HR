@@ -1,8 +1,7 @@
-from flask import Blueprint, current_app, jsonify
-from bson.objectid import ObjectId  # Import ObjectId for MongoDB queries
+from flask import Blueprint, jsonify
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return jsonify({"message": "Welcome to the AI Services API!"})
+    return jsonify({'message': 'Hello, World!'})
