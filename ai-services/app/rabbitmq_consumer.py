@@ -4,7 +4,9 @@ import re
 from flask import current_app
 from app.service.resume import process_resume, async_detect_text_in_pdf, summarize_resume, ats_scanner  
 from app.service.questionsGenerator import generate_interview_questions, split_questions, ensure_question_marks, process_questions
+from app.service.interviewData import fetch_interview_data
 from app.service.applicationData import fetch_application_data
+from app.service.interviewProcess import download_audio_from_gcs, speech_to_text, evaluate_question_answer
 from app import app  
 
 SERVICE_ACCOUNT_JSON = r"./../env/nextgen-hr-8ce4fa070811.json"
@@ -14,15 +16,20 @@ def start_consumer():
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
 
-    queue_name = 'new_job_application_queue'  # Use the new queue name
-    channel.queue_declare(queue=queue_name, durable=False)  # Ensure durable matches
+    # Existing queue for job applications
+    job_application_queue = 'new_job_application_queue'
+    channel.queue_declare(queue=job_application_queue, durable=False)
 
-    def callback(ch, method, properties, body):
+    # New queue for completed interviews
+    interview_completed_queue = 'interview_completed_queue'
+    channel.queue_declare(queue=interview_completed_queue, durable=False)
+
+    def job_application_callback(ch, method, properties, body):
         message = json.loads(body)
-        print(f"Received message: {message}")
+        print(f"Received message from {job_application_queue}: {message}")
         
         document = fetch_application_data(message)
-        print("\n fetched application document",document)
+        print("\nFetched application document:", document)
 
         print("\n the resume url from the document:", document['resumeURL'])
         
@@ -97,6 +104,74 @@ def start_consumer():
         else:
             print("resumeURL not found in the message")
 
-    channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
-    print(f"Waiting for messages in queue: {queue_name}")
+    def interview_completed_callback(ch, method, properties, body):
+        message = json.loads(body)
+        print(f"Received message from {interview_completed_queue}: {message}")
+        
+        # Process the completed interview document
+        interview_id = message
+        if interview_id:
+            print(f"Processing completed interview with ID: {interview_id}")
+
+            # Fetch the interview document using the ID
+            interview_document = fetch_interview_data(interview_id)
+            print("\nFetched interview document:", interview_document)
+
+            questions = interview_document['questions']
+            print("\n Interview questions:", questions)
+
+            total_score = 0
+
+            for question in questions:
+                question_text = question['question']
+                print("\n Question:", question_text)
+
+                audio_answer_url = question['answerAudioUrl']
+            
+                audio_path = download_audio_from_gcs(audio_answer_url)
+
+                answer_text = speech_to_text(audio_path)
+                print(f"Answer: {answer_text}\n")
+
+                evaluation = evaluate_question_answer(question_text, answer_text)
+
+                print("Evaluation Result:")
+                print(evaluation)
+
+                total_score += int(evaluation)
+
+                # Add evaluation result and answer to the question document
+                question['evaluation'] = evaluation
+                question['answer'] = answer_text
+
+            # Calculate the average score
+            average_score = total_score / len(questions) if questions else 0
+            print(f"Average Score: {average_score}")
+            # Add average score to the interview document
+            interview_document['averageScore'] = average_score
+            print("\nInterview document with average score updated successfully:")
+            # print(interview_document)
+
+            print("\nEvaluated questions with answers and evaluations created successfully:")
+            # print(questions)
+            # Update the interview document with the evaluated questions
+            mongo_instance = app.config['MONGO']
+            result = mongo_instance.db.interviews.update_one(
+                {'_id': interview_document['_id']},
+                {'$set': {'questions': questions, 'averageScore': average_score}}
+            )
+            if result.modified_count > 0:
+                print("Interview document updated successfully.")
+            else:
+                print("Failed to update the interview document.")
+            
+            # Add any additional processing logic here if needed
+        else:
+            print("Invalid message format: '_id' not found.")
+
+    # Bind callbacks to respective queues
+    channel.basic_consume(queue=job_application_queue, on_message_callback=job_application_callback, auto_ack=True)
+    channel.basic_consume(queue=interview_completed_queue, on_message_callback=interview_completed_callback, auto_ack=True)
+
+    print(f"Waiting for messages in queues: {job_application_queue}, {interview_completed_queue}")
     channel.start_consuming()

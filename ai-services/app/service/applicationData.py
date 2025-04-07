@@ -23,3 +23,4 @@ def fetch_application_data(id):
         return application_document
     except Exception as e:
         return f"An error occurred: {e}"
+    

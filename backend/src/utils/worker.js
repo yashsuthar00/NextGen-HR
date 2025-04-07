@@ -3,13 +3,18 @@ import { Worker } from 'bullmq';
 import { uploadAudioToGCS } from './googleCloudStorage.js';
 import Interview from '../models/interviewModel.js';
 import redis from '../config/redisClient.js';
-import { env } from '../utils/validateEnv.js'
+import { env } from '../utils/validateEnv.js';
 import connectDB from '../config/connectDB.js';
+import { connectRabbitMQ, closeRabbitMQ, sendMessage } from '../utils/rabbitMQ.js';
 
 connectDB(env.MONGO_URI)
-.then(async () => {
-    console.log("mognodb connected successfully")
-})
+  .then(async () => {
+    console.log("MongoDB connected successfully");
+    await connectRabbitMQ(); // Connect to RabbitMQ
+  })
+  .catch(err => {
+    console.error("Database connection error:", err);
+  });
 
 /**
  * Helper function to convert the signed URL to a gsutil URL.
@@ -61,6 +66,9 @@ const worker = new Worker('audioQueue', async job => {
         interviewDoc.status = 'completed';
         await interviewDoc.save();
         
+        // Send the updated interviewDoc to RabbitMQ
+        await sendMessage('interview_completed_queue', interviewDoc._id);
+
         // Clear the temporary Redis hash for this interview
         await redis.del(`interview:${interviewId}`);
         console.log(`Interview ${interviewId} updated with all audio URLs.`);
@@ -75,6 +83,12 @@ worker.on('completed', job => {
 
 worker.on('failed', (job, err) => {
     console.error(`Job ${job.id} failed: ${err.message}`);
+});
+
+// Gracefully handle shutdown
+process.on('SIGINT', async () => {
+    await closeRabbitMQ(); // Close RabbitMQ connection on shutdown
+    process.exit(0);
 });
 
 // Added log to confirm the worker is running
