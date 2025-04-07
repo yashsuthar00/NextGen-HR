@@ -57,9 +57,9 @@ def start_consumer():
                         print("\n resume summary generated successfully:\n" , resume_summary)
 
                         print("\n ats report generating process started ...")
-                        job_desciption = document['jobDetails']['description']
-                        print("\n job description from the document:", job_desciption)
-                        ats_report = ats_scanner(resume_summary, job_desciption)
+                        job_description = document['jobDetails']['description']
+                        print("\n job description from the document:", job_description)
+                        ats_report = ats_scanner(resume_summary, job_description)
                         print("\n ats report generated successfully:")
                         print(ats_report)
 
