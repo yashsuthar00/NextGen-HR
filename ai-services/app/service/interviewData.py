@@ -15,14 +15,7 @@ def fetch_interview_data(id):
             return "No data found for the given ID"
         
         return interview_document
-
-        # # Fetch the job document using the jobId reference
-        # job_id = interview_document.get("jobId")
-        # if job_id:
-        #     job_document = mongo_instance.db.jobs.find_one({"_id": ObjectId(job_id)})
-        #     interview_document["jobDetails"] = job_document
-        
-        return interview_document
+    
     except Exception as e:
         return f"An error occurred: {e}"
     
