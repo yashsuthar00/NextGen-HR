@@ -32,7 +32,7 @@ const validateEnv = () => {
     // Google Cloud Configuration
     GCP_PROJECT_ID: process.env.GCP_PROJECT_ID,
     GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
-    GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    GCLOUD_KEY_FILE: process.env.GCLOUD_KEY_FILE,
 
     // Admin Configuration for admin login access
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
