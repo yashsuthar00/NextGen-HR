@@ -4,11 +4,26 @@ let channel, connection;
 
 export async function connectRabbitMQ() {
   try {
-    connection = await amqp.connect('amqp://localhost');
+    connection = await amqp.connect({
+      protocol: 'amqp',
+      hostname: 'localhost',
+      heartbeat: 10, // Enable heartbeats every 10 seconds
+    });
     channel = await connection.createChannel();
     console.log('RabbitMQ connected successfully');
+
+    // Handle connection close and errors
+    connection.on('close', () => {
+      console.error('RabbitMQ connection closed. Reconnecting...');
+      setTimeout(connectRabbitMQ, 5000); // Reconnect after 5 seconds
+    });
+
+    connection.on('error', (err) => {
+      console.error('RabbitMQ connection error:', err);
+    });
   } catch (error) {
     console.error('Error connecting to RabbitMQ:', error);
+    setTimeout(connectRabbitMQ, 5000); // Retry connection after 5 seconds
   }
 }
 
