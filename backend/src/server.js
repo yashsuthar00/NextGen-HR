@@ -5,15 +5,11 @@ import { env } from './utils/validateEnv.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import oauthRoutes from './routes/oauthRoutes.js';
-import jobRoutes from './routes/jobRoutes.js'
 import { initializeRoles } from './utils/initRoles.js';
 import { initializeAdmin } from './utils/initAdmin.js';
 import cors from 'cors';
 import passport from './config/passport-config.js';
 import session from 'express-session';
-import applyForJobRoute from './routes/applyForJobRoute.js'; 
-import interviewRoutes from './routes/interviewRoutes.js';
-import { connectRabbitMQ, closeRabbitMQ } from './utils/rabbitMQ.js';
 
 dotenv.config();
 const app = express();
@@ -96,14 +92,10 @@ app.get('/logout', (req, res) => {
 // Define API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/auth', oauthRoutes); 
-app.use ('/api/jobs', jobRoutes);
-app.use('/api/job', applyForJobRoute); 
-app.use('/api/interview', interviewRoutes);
+app.use('/auth', oauthRoutes); // Add OAuth routes
 
 connectDB(MONGO_URI)
   .then(async () => {
-    await connectRabbitMQ(); // Connect to RabbitMQ
     await initializeRoles();
     await initializeAdmin();
     app.listen(PORT, () => {
@@ -113,8 +105,3 @@ connectDB(MONGO_URI)
   .catch((err) => {
     console.error("Database connection error:", err);
   });
-
-process.on('SIGINT', async () => {
-  await closeRabbitMQ(); // Close RabbitMQ connection on server shutdown
-  process.exit(0);
-});

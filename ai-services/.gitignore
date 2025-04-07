@@ -12,8 +12,6 @@ instance/
 *.pyo
 *.pyd
 
-/env
-
 # Environment variables
 .env
 
