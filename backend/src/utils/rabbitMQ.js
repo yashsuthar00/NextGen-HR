@@ -32,8 +32,7 @@ export async function sendMessage(queue, message) {
     if (!channel) {
       throw new Error('RabbitMQ channel is not initialized');
     }
-    // Ensure the durable property matches the existing queue configuration
-    await channel.assertQueue(queue, { durable: false }); // Set durable to false to match the existing queue
+    await channel.assertQueue(queue, { durable: false }); // Ensure queue exists
     channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
     console.log(`Message sent to queue "${queue}":`, message);
   } catch (error) {
@@ -43,8 +42,8 @@ export async function sendMessage(queue, message) {
 
 export async function closeRabbitMQ() {
   try {
-    await channel.close();
-    await connection.close();
+    if (channel) await channel.close();
+    if (connection) await connection.close();
     console.log('RabbitMQ connection closed');
   } catch (error) {
     console.error('Error closing RabbitMQ connection:', error);

@@ -11,7 +11,7 @@ import { initializeAdmin } from './utils/initAdmin.js';
 import cors from 'cors';
 import passport from './config/passport-config.js';
 import session from 'express-session';
-import applyForJobRoute from './routes/applyForJobRoute.js'; 
+import applyForJobRoute from './routes/applicationRoutes.js'; 
 import interviewRoutes from './routes/interviewRoutes.js';
 import { connectRabbitMQ, closeRabbitMQ } from './utils/rabbitMQ.js';
 

@@ -95,6 +95,7 @@ def start_consumer():
                             "jobId": document['jobDetails']['_id'],
                             "userId": document['userId'],
                             "questions": questions_array,
+                            "status": "scheduled",
                         }
 
                         # Fetch the MONGO instance from app.config
@@ -167,7 +168,7 @@ def start_consumer():
                         mongo_instance = app.config['MONGO']
                         result = mongo_instance.db.interviews.update_one(
                             {'_id': interview_document['_id']},
-                            {'$set': {'questions': questions, 'averageScore': average_score}}
+                            {'$set': {'questions': questions, 'averageScore': average_score}},
                         )
                         if result.modified_count > 0:
                             print("Interview document updated successfully.")

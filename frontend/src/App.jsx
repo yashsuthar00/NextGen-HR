@@ -7,6 +7,7 @@ import UserManagementSystem from './components/UserManagementSystem.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import JobsPage from './pages/JobListPage.jsx';
+import InterviewPage from './pages/interview/InterviewPage.jsx';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           </ProtectedRoute>
         } 
       />
+      <Route path="/interview" element={<InterviewPage interviewId={"67f9878daf077c16b1537706"} />} />
       <Route path="/jobs" element={<JobsPage />} />
       <Route path='/' element={<AuthPage />} />
       <Route path="/not-found" element={<NotFoundPage />} />
