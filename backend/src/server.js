@@ -11,7 +11,7 @@ import { initializeAdmin } from './utils/initAdmin.js';
 import cors from 'cors';
 import passport from './config/passport-config.js';
 import session from 'express-session';
-import applyForJobRoute from './routes/applicationRoutes.js'; 
+import applicationRoutes from './routes/applicationRoutes.js'; 
 import interviewRoutes from './routes/interviewRoutes.js';
 import { connectRabbitMQ, closeRabbitMQ } from './utils/rabbitMQ.js';
 
@@ -98,7 +98,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/auth', oauthRoutes); 
 app.use ('/api/jobs', jobRoutes);
-app.use('/api/job', applyForJobRoute); 
+app.use('/api/job', applicationRoutes); 
 app.use('/api/interview', interviewRoutes);
 
 connectDB(MONGO_URI)

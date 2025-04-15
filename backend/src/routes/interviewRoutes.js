@@ -11,10 +11,12 @@ const router = Router();
  * Expected form-data fields:
  *   - interviewId: The MongoDB ID of the existing interview document
  *   - questionIndex: The index (0-based) of the question being answered
- *   - file: The audio file (.m4a or .wav)
+ *   - audio: The audio file (.m4a, .wav)
+ *   - video: The video file (.mp4, .webm)
  */
-router.post('/upload', upload.single('file'), InterviewController.uploadInterviewData);
+router.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'video', maxCount: 1 }]), InterviewController.uploadInterviewData);
 router.get('/:id', InterviewController.getInterviewData);
+router.get('/user/:id', InterviewController.getInterviewsByUserId);
 
 
 export default router;

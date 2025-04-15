@@ -9,7 +9,7 @@ router.use(AuthMiddleware.protect);
 
 router.get('/', JobController.getJobs);
 router.post('/', RoleMiddleware.hrAndAdminOnly, JobController.createJob);
-router.get('/:id', RoleMiddleware.hrAndAdminOnly, JobController.getJobById);
+router.get('/:id', JobController.getJobById);
 router.delete('/:id', RoleMiddleware.hrAndAdminOnly, JobController.deleteJob);
 router.put('/:id', RoleMiddleware.hrAndAdminOnly, JobController.updateJob);
 

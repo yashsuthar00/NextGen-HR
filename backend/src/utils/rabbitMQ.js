@@ -40,6 +40,20 @@ export async function sendMessage(queue, message) {
   }
 }
 
+export async function sendCompletedVideoMessage(message) {
+  try {
+    const queue = 'completed_video_uploads';
+    if (!channel) {
+      throw new Error('RabbitMQ channel is not initialized');
+    }
+    await channel.assertQueue(queue, { durable: false }); // Ensure queue exists
+    channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
+    console.log(`Message sent to queue "${queue}":`, message);
+  } catch (error) {
+    console.error('Error sending message to RabbitMQ:', error);
+  }
+}
+
 export async function closeRabbitMQ() {
   try {
     if (channel) await channel.close();

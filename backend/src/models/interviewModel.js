@@ -28,6 +28,9 @@ const interviewSchema = new mongoose.Schema(
                     type: String,
                     // required: [true, "Audio URL must be required"],
                 },
+                videoUrl: {
+                    type: String, // Add this field for video URLs
+                },
             },
         ],
         // dateTime: {
