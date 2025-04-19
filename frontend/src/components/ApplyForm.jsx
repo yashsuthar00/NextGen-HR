@@ -4,6 +4,7 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     resume: null
   });
   const [errors, setErrors] = useState({});
@@ -26,7 +27,6 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
       });
     }
     
-    // Clear error when field is edited
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -46,6 +46,12 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
       newErrors.email = 'Email is required';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       newErrors.email = 'Invalid email format';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = 'Invalid phone number format';
     }
     
     if (!formData.resume) {
@@ -74,8 +80,8 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="mb-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
         <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
           Full Name <span className="text-red-500">*</span>
         </label>
@@ -85,7 +91,7 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
           name="name"
           value={formData.name}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 ${
             errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'
           }`}
           placeholder="Enter your full name"
@@ -95,7 +101,7 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
         )}
       </div>
 
-      <div className="mb-4">
+      <div>
         <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
           Email <span className="text-red-500">*</span>
         </label>
@@ -105,7 +111,7 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 ${
             errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'
           }`}
           placeholder="Enter your email address"
@@ -115,14 +121,39 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
         )}
       </div>
 
-      <div className="mb-4">
+      <div>
+        <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">
+          Phone Number <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="phone"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 ${
+            errors.phone ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-blue-200'
+          }`}
+          placeholder="Enter your phone number"
+        />
+        {errors.phone && (
+          <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+        )}
+      </div>
+
+      <div>
         <label htmlFor="resume" className="block text-gray-700 font-medium mb-2">
           Resume <span className="text-red-500">*</span>
         </label>
         <div className="flex items-center w-full">
           <label 
-            className="flex-1 flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+            className="flex-1 flex items-center px-4 py-3 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors duration-300"
           >
+            <div className="bg-blue-100 p-2 rounded-lg mr-3">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </div>
             <span className="text-gray-500">{fileName || 'Choose your resume file'}</span>
             <input
               type="file"
@@ -152,18 +183,18 @@ const ApplyForm = ({ onSubmit, onCancel }) => {
         </p>
       </div>
 
-      <div className="flex justify-end gap-4 mt-6">
+      <div className="flex justify-end gap-4 pt-4">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-300"
           disabled={isSubmitting}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
+          className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 transition-colors duration-300 shadow-md"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Application'}

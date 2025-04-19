@@ -69,10 +69,13 @@ const mediaWorker = new Worker('mediaQueue', async job => {
             const { fileBase64, originalName, mimetype } = videoData;
             const fileBuffer = Buffer.from(fileBase64, 'base64');
 
-            // Upload the video file to Cloudinary
+            // Upload the video file to Cloudinary under the "interview_videos" folder
             const uploadResult = await new Promise((resolve, reject) => {
                 cloudinary.uploader.upload_stream(
-                    { resource_type: 'video' },
+                    { 
+                        resource_type: 'video', 
+                        folder: 'interview_videos' // Specify the folder name
+                    },
                     (error, result) => {
                         if (error) reject(error);
                         else resolve(result);

@@ -8,6 +8,9 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import JobsPage from './pages/JobListPage.jsx';
 import InterviewPage from './pages/interview/InterviewPage.jsx';
+import AppliedJobs from './pages/AppliedJobs.jsx';
+import InterviewViewer from './pages/InterviewViewer.jsx';
+import ApplicationUserListPage from './pages/ApplicationUserListPage.jsx';
 
 function App() {
   return (
@@ -29,7 +32,11 @@ function App() {
           </ProtectedRoute>
         } 
       />
-      <Route path="/interview" element={<InterviewPage interviewId={"67f9878daf077c16b1537706"} />} />
+      <Route path="/application/user/:jobId" element={<ApplicationUserListPage />} />
+      <Route path="/job/application/users/:jobid" element={<InterviewViewer />} />
+      <Route path="/interview/report/:interviewId" element={<InterviewViewer />} />
+      <Route path="/applied-jobs" element={<AppliedJobs />} />
+      <Route path="/interview/:interviewId" element={<InterviewPage />} />
       <Route path="/jobs" element={<JobsPage />} />
       <Route path='/' element={<AuthPage />} />
       <Route path="/not-found" element={<NotFoundPage />} />

@@ -129,6 +129,20 @@ class InterviewController {
             res.status(500).json({ message: 'Internal server error' });
         }
     }
+
+    static async getInterviewsByJobId(req, res) {
+        try {
+            const { id } = req.params;
+            const interviews = await Interview.find({ jobId: id });
+            if (!interviews || interviews.length === 0) {
+                return res.status(404).json({ message: 'No interviews found for this job.' });
+            }
+            res.status(200).json(interviews);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    }
 }
 
 export default InterviewController;

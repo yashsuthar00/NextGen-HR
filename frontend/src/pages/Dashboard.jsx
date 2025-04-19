@@ -2,11 +2,11 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
+import UserManagementSystem from '../components/UserManagementSystem.jsx';
 import AdminDashboard from '../components/AdminDashboard.jsx';
-import HRDashboard from '../components/HRDashboard.jsx';
 import EmployeeDashboard from '../components/EmployeeDashboard.jsx';
 import CandidateDashboard from '../components/CandidateDashboard.jsx';
-import Navbar from '../components/Navbar.jsx';
+import RecruiterDashboard from '../components/RecruiterDashboard.jsx';
 
 const Dashboard = () => {
   const token = localStorage.getItem('authToken');
@@ -28,10 +28,10 @@ const Dashboard = () => {
 
   return (
     <div>
-      <Navbar />
+      {/* <Navbar /> */}
       <Routes>
-        {role === 'admin' && <Route path="/" element={<AdminDashboard />} />}
-        {role === 'hr' && <Route path="/" element={<HRDashboard />} />}
+        {role === 'admin' && <Route path="/" element={<UserManagementSystem />} />}
+        {role === 'hr' && <Route path="/" element={<RecruiterDashboard />} />}
         {role === 'employee' && <Route path="/" element={<EmployeeDashboard />} />}
         {role === 'candidate' && <Route path="/" element={<CandidateDashboard />} />}
         {/* Fallback: if no matching route, redirect to the main dashboard route */}

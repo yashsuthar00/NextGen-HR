@@ -45,7 +45,9 @@ def download_audio_from_gcs(gcs_path):
     bucket = client_gcs.bucket(bucket_name)
     blob = bucket.blob(file_name)
     print("🔄 Downloading audio file from GCS...")
+    print(f"   gcs path: {gcs_path}")
     temp_audio_path = f"/tmp/{file_name}"  # Temporary local file pathj
+    print(f"   local path: {temp_audio_path}")
     blob.download_to_filename(temp_audio_path)
     print(f"✅ Downloaded to: {temp_audio_path}")
 
