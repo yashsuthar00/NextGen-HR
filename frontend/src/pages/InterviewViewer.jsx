@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, Pause, Volume2, VolumeX, Maximize, ArrowLeft } from 'lucide-react';
+import { 
+  Play, Pause, Volume2, VolumeX, Maximize, ArrowLeft, 
+  ChevronRight, Clock, Award, MessageSquare, BarChart, 
+  Bot // Replace Robot with Bot
+} from 'lucide-react';
 import axios from 'axios';
 
 // Interview Viewer Component
@@ -246,6 +250,9 @@ export default function InterviewViewer() {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-50">
         <div className="p-6 bg-white rounded-lg shadow-lg">
+          <div className="w-16 h-16 mx-auto mb-4 bg-blue-50 rounded-full flex items-center justify-center">
+            <Bot size={32} className="text-blue-400" /> {/* Replace Robot with Bot */}
+          </div>
           <h2 className="text-xl font-bold text-gray-700 mb-4">No Data Available</h2>
           <p className="text-gray-600">The interview data could not be found.</p>
         </div>
@@ -259,13 +266,19 @@ export default function InterviewViewer() {
         {selectedQuestion ? (
           <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-500 transform translate-y-0 opacity-100">
             <div className="p-6">
-              <button
-                onClick={handleBackToQuestions}
-                className="flex items-center text-gray-600 hover:text-blue-600 transition-colors mb-6 group"
-              >
-                <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={20} />
-                Back to questions
-              </button>
+              <div className="flex items-center justify-between mb-6">
+                <button
+                  onClick={handleBackToQuestions}
+                  className="flex items-center text-gray-600 hover:text-blue-600 transition-colors group"
+                >
+                  <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={20} />
+                  Back to questions
+                </button>
+                <div className="flex items-center space-x-2 bg-blue-50 px-3 py-1 rounded-full">
+                  <Bot size={18} className="text-blue-600" /> {/* Replace Robot with Bot */}
+                  <span className="text-sm font-medium text-blue-700">AI Interview Session</span>
+                </div>
+              </div>
 
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Question</h2>
@@ -423,7 +436,10 @@ export default function InterviewViewer() {
           <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-500 transform translate-y-0 opacity-100">
             <div className="p-6">
               <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Interview Questions</h1>
+                <h1 className="text-3xl font-bold text-gray-800 flex items-center">
+                  <Bot size={28} className="mr-3 text-blue-600" /> {/* Replace Robot with Bot */}
+                  AI Interview Review
+                </h1>
                 <p className="text-gray-600 mt-2">
                   Click on a question to view the candidate's response and evaluation.
                 </p>
